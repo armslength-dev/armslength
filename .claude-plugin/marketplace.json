@@ -1,0 +1,57 @@
+{
+  "name": "agent-bridge",
+  "owner": {
+    "name": "armslength"
+  },
+  "plugins": [
+    {
+      "description": "Two companies' AI agents agree a contract. Neither side gets access to the other's systems.",
+      "keywords": [
+        "mcp-tool:bridge_contract_list",
+        "mcp-tool:bridge_contract_get",
+        "mcp-tool:bridge_proposal_list",
+        "mcp-tool:bridge_proposal_show",
+        "mcp-tool:bridge_status_get",
+        "mcp-tool:bridge_propose",
+        "mcp-tool:bridge_proposal_counter",
+        "mcp-tool:bridge_proposal_comment",
+        "mcp-tool:bridge_proposal_accept",
+        "mcp-tool:bridge_proposal_reject",
+        "mcp-tool:bridge_file_list",
+        "mcp-tool:bridge_file_get",
+        "mcp-tool:bridge_chat_list",
+        "mcp-tool:bridge_chat_pinned",
+        "relay-route:GET /w/{workspace}/events",
+        "relay-route:GET /w/{workspace}/keys",
+        "relay-route:POST /w/{workspace}/{party}/events",
+        "relay-route:PUT /w/{workspace}/blobs/{sha256}",
+        "relay-route:GET /w/{workspace}/blobs/{sha256}",
+        "cli-command:bridge init",
+        "cli-command:bridge join",
+        "cli-command:bridge confirm-peer",
+        "cli-command:bridge agent-card",
+        "cli-command:bridge propose",
+        "cli-command:bridge escalate",
+        "cli-command:bridge verify",
+        "cli-command:bridge listing"
+      ],
+      "mcpServers": {
+        "agent-bridge": {
+          "args": [
+            "mcp"
+          ],
+          "command": "bridge",
+          "env": {
+            "BRIDGE_LISTING_CAPABILITIES": "[{\"kind\":\"mcp-tool\",\"ref\":\"bridge_contract_list\"},{\"kind\":\"mcp-tool\",\"ref\":\"bridge_contract_get\"},{\"kind\":\"mcp-tool\",\"ref\":\"bridge_proposal_list\"},{\"kind\":\"mcp-tool\",\"ref\":\"bridge_proposal_show\"},{\"kind\":\"mcp-tool\",\"ref\":\"bridge_status_get\"},{\"kind\":\"mcp-tool\",\"ref\":\"bridge_propose\"},{\"kind\":\"mcp-tool\",\"ref\":\"bridge_proposal_counter\"},{\"kind\":\"mcp-tool\",\"ref\":\"bridge_proposal_comment\"},{\"kind\":\"mcp-tool\",\"ref\":\"bridge_proposal_accept\"},{\"kind\":\"mcp-tool\",\"ref\":\"bridge_proposal_reject\"},{\"kind\":\"mcp-tool\",\"ref\":\"bridge_file_list\"},{\"kind\":\"mcp-tool\",\"ref\":\"bridge_file_get\"},{\"kind\":\"mcp-tool\",\"ref\":\"bridge_chat_list\"},{\"kind\":\"mcp-tool\",\"ref\":\"bridge_chat_pinned\"},{\"kind\":\"relay-route\",\"ref\":\"GET /w/{workspace}/events\"},{\"kind\":\"relay-route\",\"ref\":\"GET /w/{workspace}/keys\"},{\"kind\":\"relay-route\",\"ref\":\"POST /w/{workspace}/{party}/events\"},{\"kind\":\"relay-route\",\"ref\":\"PUT /w/{workspace}/blobs/{sha256}\"},{\"kind\":\"relay-route\",\"ref\":\"GET /w/{workspace}/blobs/{sha256}\"},{\"kind\":\"cli-command\",\"ref\":\"bridge init\"},{\"kind\":\"cli-command\",\"ref\":\"bridge join\"},{\"kind\":\"cli-command\",\"ref\":\"bridge confirm-peer\"},{\"kind\":\"cli-command\",\"ref\":\"bridge agent-card\"},{\"kind\":\"cli-command\",\"ref\":\"bridge propose\"},{\"kind\":\"cli-command\",\"ref\":\"bridge escalate\"},{\"kind\":\"cli-command\",\"ref\":\"bridge verify\"},{\"kind\":\"cli-command\",\"ref\":\"bridge listing\"}]",
+            "BRIDGE_LISTING_VERSION": "0.26"
+          },
+          "type": "stdio"
+        }
+      },
+      "name": "agent-bridge",
+      "source": "./",
+      "strict": false,
+      "version": "0.26"
+    }
+  ]
+}
