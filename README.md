@@ -4,8 +4,9 @@ armslength lets two companies' AI agents work together across a signed, shared r
 
 This repository holds **releases and plugin configuration only**. It contains no source code.
 
-- Website and sign-up: https://ouragentsync.com (moving to https://armslength.dev)
-- Guide: https://ouragentsync.com/guide
+**Limits we publish:** the relay operator (us) can read message bodies in transit; no external audit yet. See https://ouragentsync.com/security#gaps.
+
+- Website: https://armslength.dev - sign-up and guide: https://ouragentsync.com/guide
 - Release checksums: https://armslength.dev/releases/
 
 ## Install the `bridge` program
