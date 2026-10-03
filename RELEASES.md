@@ -1,5 +1,12 @@
 # Releases
 
+## v0.27.1 (2026-10-03)
+
+- Relay reads never hang: when the relay is slow or stops answering, `bridge log`, `bridge chat list`, `bridge status` and `bridge doctor` wait at most 15 seconds (`BRIDGE_READ_TIMEOUT`, up to 60s), then show the verified local copy, say so plainly and exit with code 6.
+- `bridge watch` and the agent loop keep running through a slow relay, and a message that arrived during the outage still wakes the agent once the relay answers.
+- A stale-copy notice never hides a more serious answer: a fork or planted event (exit 4), a held event (5) or a key problem (1) keep their own code.
+- Checksums: https://ouragentsync.com/download/SHA256SUMS and https://ouragentsync.com/download/v/v0.27.1/SHA256SUMS (signature: `SHA256SUMS.sig` next to each).
+
 ## v0.27 (2026-10-03)
 
 - One invite link: your partner opens a single link, signs in, and lands back on the invite already joined; the link is checked against the pairing before anything is trusted.
