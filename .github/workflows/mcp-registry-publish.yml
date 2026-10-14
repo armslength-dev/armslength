@@ -60,6 +60,14 @@ jobs:
           persist-credentials: false
 
       - name: Pre-login checks (fail closed)
+        # The ONLY document this job can publish is EXPECTED below, with
+        # `version` taken from the input. Any other key, value, type or nesting
+        # is refused, so a server.json edit cannot ride through on the OIDC
+        # identity. Changing the listing means changing this template in a
+        # reviewed commit (it does not touch the trigger, permissions or
+        # secrets). The file is parsed strictly first: a duplicate key, or two
+        # keys equal under case folding (Go's decoder matches keys
+        # case-insensitively and keeps the last), is refused at any depth.
         env:
           INPUT_VERSION: ${{ inputs.version }}
           INPUT_PUBLISH: ${{ inputs.publish }}
@@ -68,9 +76,199 @@ jobs:
           python3 - <<'PY'
           import json, os, re, sys
 
+          EXPECTED = json.loads(r'''
+          {
+            "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+            "name": "io.github.armslength-dev/armslength",
+            "title": "armslength",
+            "description": "Your AI and another company's AI on one signed line. People approve; nobody shares logins.",
+            "version": "__VERSION_FROM_INPUT__",
+            "websiteUrl": "https://armslength.dev",
+            "repository": {
+              "url": "https://github.com/armslength-dev/armslength",
+              "source": "github"
+            },
+            "remotes": [
+              {
+                "type": "streamable-http",
+                "url": "https://ouragentsync.com/mcp"
+              }
+            ],
+            "_meta": {
+              "io.modelcontextprotocol.registry/publisher-provided": {
+                "agentBridge": {
+                  "docs": "https://ouragentsync.com/guide",
+                  "generatedBy": "internal/listing",
+                  "a2aExtension": "https://ouragentsync.com/a2a/ext/chained-events/v1",
+                  "a2aDiscoveryPath": "/.well-known/agent-card.json",
+                  "eventSchema": "https://ouragentsync.com/a2a/ext/chained-events/v1/chained-event.schema.json",
+                  "capabilities": [
+                    {
+                      "kind": "mcp-tool",
+                      "ref": "bridge_contract_list"
+                    },
+                    {
+                      "kind": "mcp-tool",
+                      "ref": "bridge_contract_get"
+                    },
+                    {
+                      "kind": "mcp-tool",
+                      "ref": "bridge_proposal_list"
+                    },
+                    {
+                      "kind": "mcp-tool",
+                      "ref": "bridge_proposal_show"
+                    },
+                    {
+                      "kind": "mcp-tool",
+                      "ref": "bridge_status_get"
+                    },
+                    {
+                      "kind": "mcp-tool",
+                      "ref": "bridge_propose"
+                    },
+                    {
+                      "kind": "mcp-tool",
+                      "ref": "bridge_proposal_counter"
+                    },
+                    {
+                      "kind": "mcp-tool",
+                      "ref": "bridge_proposal_comment"
+                    },
+                    {
+                      "kind": "mcp-tool",
+                      "ref": "bridge_proposal_accept"
+                    },
+                    {
+                      "kind": "mcp-tool",
+                      "ref": "bridge_proposal_reject"
+                    },
+                    {
+                      "kind": "mcp-tool",
+                      "ref": "bridge_file_list"
+                    },
+                    {
+                      "kind": "mcp-tool",
+                      "ref": "bridge_file_get"
+                    },
+                    {
+                      "kind": "mcp-tool",
+                      "ref": "bridge_chat_list"
+                    },
+                    {
+                      "kind": "mcp-tool",
+                      "ref": "bridge_chat_pinned"
+                    },
+                    {
+                      "kind": "mcp-tool",
+                      "ref": "room_library_add"
+                    },
+                    {
+                      "kind": "mcp-tool",
+                      "ref": "room_library_list"
+                    },
+                    {
+                      "kind": "mcp-tool",
+                      "ref": "room_library_retire"
+                    },
+                    {
+                      "kind": "relay-route",
+                      "ref": "GET /w/{workspace}/events"
+                    },
+                    {
+                      "kind": "relay-route",
+                      "ref": "GET /w/{workspace}/keys"
+                    },
+                    {
+                      "kind": "relay-route",
+                      "ref": "POST /w/{workspace}/{party}/events"
+                    },
+                    {
+                      "kind": "relay-route",
+                      "ref": "PUT /w/{workspace}/blobs/{sha256}"
+                    },
+                    {
+                      "kind": "relay-route",
+                      "ref": "GET /w/{workspace}/blobs/{sha256}"
+                    },
+                    {
+                      "kind": "cli-command",
+                      "ref": "bridge init"
+                    },
+                    {
+                      "kind": "cli-command",
+                      "ref": "bridge join"
+                    },
+                    {
+                      "kind": "cli-command",
+                      "ref": "bridge confirm-peer"
+                    },
+                    {
+                      "kind": "cli-command",
+                      "ref": "bridge agent-card"
+                    },
+                    {
+                      "kind": "cli-command",
+                      "ref": "bridge propose"
+                    },
+                    {
+                      "kind": "cli-command",
+                      "ref": "bridge escalate"
+                    },
+                    {
+                      "kind": "cli-command",
+                      "ref": "bridge verify"
+                    },
+                    {
+                      "kind": "cli-command",
+                      "ref": "bridge listing"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+          ''')
+
           def fail(msg):
               print(f"::error::{msg}")
               sys.exit(1)
+
+          def strict_object(pairs):
+              seen, folded = set(), {}
+              for key, _ in pairs:
+                  if key in seen:
+                      fail(f"duplicate key {key!r} in server.json")
+                  seen.add(key)
+                  f = key.casefold()
+                  if f in folded:
+                      fail(f"keys {folded[f]!r} and {key!r} are equal ignoring case in server.json")
+                  folded[f] = key
+              return dict(pairs)
+
+          def refuse_constant(name):
+              fail(f"non-standard JSON constant {name} in server.json")
+
+          def same(want, got, path="$"):
+              # Exact: same type (no bool/int/float mixing), same keys, same order-free values.
+              if type(want) is not type(got):
+                  fail(f"{path}: expected {type(want).__name__}, got {type(got).__name__} ({got!r})")
+              if isinstance(want, dict):
+                  for k in want:
+                      if k not in got:
+                          fail(f"{path}: missing key {k!r}")
+                  for k in got:
+                      if k not in want:
+                          fail(f"{path}: unexpected key {k!r}")
+                  for k in want:
+                      same(want[k], got[k], f"{path}.{k}")
+              elif isinstance(want, list):
+                  if len(want) != len(got):
+                      fail(f"{path}: expected {len(want)} items, got {len(got)}")
+                  for i, (w, g) in enumerate(zip(want, got)):
+                      same(w, g, f"{path}[{i}]")
+              elif want != got:
+                  fail(f"{path}: expected {want!r}, got {got!r}")
 
           version = os.environ["INPUT_VERSION"]
           publish = os.environ["INPUT_PUBLISH"]
@@ -83,26 +281,25 @@ jobs:
 
           try:
               with open("server.json", "rb") as f:
-                  doc = json.loads(f.read().decode("utf-8"))
+                  text = f.read().decode("utf-8")
+          except Exception as e:
+              fail(f"server.json is not readable UTF-8: {e}")
+          try:
+              doc = json.loads(text, object_pairs_hook=strict_object, parse_constant=refuse_constant)
+          except SystemExit:
+              raise
           except Exception as e:
               fail(f"server.json is not valid JSON: {e}")
-          if not isinstance(doc, dict):
-              fail("server.json is not a JSON object")
 
-          if doc.get("$schema") != os.environ["EXPECTED_SCHEMA"]:
-              fail(f"$schema is {doc.get('$schema')!r}, expected {os.environ['EXPECTED_SCHEMA']}")
-          if doc.get("name") != os.environ["EXPECTED_NAME"]:
-              fail(f"name is {doc.get('name')!r}, expected {os.environ['EXPECTED_NAME']}")
-          if doc.get("version") != version:
-              fail(f"server.json version {doc.get('version')!r} != input {version!r}")
-          remotes = doc.get("remotes")
-          if not isinstance(remotes, list) or not remotes or not isinstance(remotes[0], dict):
-              fail("remotes[0] is missing")
-          if remotes[0].get("url") != os.environ["EXPECTED_REMOTE"]:
-              fail(f"remotes[0].url is {remotes[0].get('url')!r}, expected {os.environ['EXPECTED_REMOTE']}")
-          if remotes[0].get("type") != "streamable-http":
-              fail(f"remotes[0].type is {remotes[0].get('type')!r}, expected streamable-http")
-          print(f"ok: {doc['name']} {doc['version']} -> {remotes[0]['url']} (publish={publish})")
+          expected = dict(EXPECTED, version=version)
+          same(expected, doc)
+          # Belt and braces on the identity fields the brief names.
+          for key, env in (("name", "EXPECTED_NAME"), ("$schema", "EXPECTED_SCHEMA")):
+              if doc[key] != os.environ[env]:
+                  fail(f"{key} is {doc[key]!r}, expected {os.environ[env]}")
+          if doc["remotes"][0]["url"] != os.environ["EXPECTED_REMOTE"]:
+              fail(f"remotes[0].url is {doc['remotes'][0]['url']!r}, expected {os.environ['EXPECTED_REMOTE']}")
+          print(f"ok: server.json is exactly the expected listing at {version} (publish={publish})")
           PY
 
       - name: Install pinned mcp-publisher (sha256 verified before it runs)

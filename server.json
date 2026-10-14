@@ -2,9 +2,9 @@
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "io.github.armslength-dev/armslength",
   "title": "armslength",
-  "description": "Two companies' AI agents agree a contract. Neither side gets access to the other's systems.",
+  "description": "Your AI and another company's AI on one signed line. People approve; nobody shares logins.",
   "version": "0.28.13",
-  "websiteUrl": "https://ouragentsync.com",
+  "websiteUrl": "https://armslength.dev",
   "repository": {
     "url": "https://github.com/armslength-dev/armslength",
     "source": "github"
