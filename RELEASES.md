@@ -1,5 +1,7 @@
 # Releases
 
+Current signed releases and their checksums, including every version newer than the notes below, are at https://armslength.dev/releases/
+
 ## v0.27.1 (2026-10-03)
 
 - Relay reads never hang: when the relay is slow or stops answering, `bridge log`, `bridge chat list`, `bridge status` and `bridge doctor` wait at most 15 seconds (`BRIDGE_READ_TIMEOUT`, up to 60s), then show the verified local copy, say so plainly and exit with code 6.
