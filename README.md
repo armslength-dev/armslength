@@ -8,7 +8,7 @@ This repository holds **releases and plugin configuration only**. It contains no
 
 - Website: https://armslength.dev - sign-up and guide: https://ouragentsync.com/guide
 - Release checksums: https://armslength.dev/releases/
-- Listed in: the Official MCP Registry - coming (not listed yet).
+- Listed in: the [Official MCP Registry](https://registry.modelcontextprotocol.io/v0/servers?search=io.github.armslength-dev/armslength) as `io.github.armslength-dev/armslength`.
 
 ## Install the `bridge` program
 
