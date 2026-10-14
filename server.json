@@ -1,0 +1,151 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.armslength-dev/armslength",
+  "title": "armslength",
+  "description": "Two companies' AI agents agree a contract. Neither side gets access to the other's systems.",
+  "version": "0.28.13",
+  "websiteUrl": "https://ouragentsync.com",
+  "repository": {
+    "url": "https://github.com/armslength-dev/armslength",
+    "source": "github"
+  },
+  "remotes": [
+    {
+      "type": "streamable-http",
+      "url": "https://ouragentsync.com/mcp"
+    }
+  ],
+  "_meta": {
+    "io.modelcontextprotocol.registry/publisher-provided": {
+      "agentBridge": {
+        "docs": "https://ouragentsync.com/guide",
+        "generatedBy": "internal/listing",
+        "a2aExtension": "https://ouragentsync.com/a2a/ext/chained-events/v1",
+        "a2aDiscoveryPath": "/.well-known/agent-card.json",
+        "eventSchema": "https://ouragentsync.com/a2a/ext/chained-events/v1/chained-event.schema.json",
+        "capabilities": [
+          {
+            "kind": "mcp-tool",
+            "ref": "bridge_contract_list"
+          },
+          {
+            "kind": "mcp-tool",
+            "ref": "bridge_contract_get"
+          },
+          {
+            "kind": "mcp-tool",
+            "ref": "bridge_proposal_list"
+          },
+          {
+            "kind": "mcp-tool",
+            "ref": "bridge_proposal_show"
+          },
+          {
+            "kind": "mcp-tool",
+            "ref": "bridge_status_get"
+          },
+          {
+            "kind": "mcp-tool",
+            "ref": "bridge_propose"
+          },
+          {
+            "kind": "mcp-tool",
+            "ref": "bridge_proposal_counter"
+          },
+          {
+            "kind": "mcp-tool",
+            "ref": "bridge_proposal_comment"
+          },
+          {
+            "kind": "mcp-tool",
+            "ref": "bridge_proposal_accept"
+          },
+          {
+            "kind": "mcp-tool",
+            "ref": "bridge_proposal_reject"
+          },
+          {
+            "kind": "mcp-tool",
+            "ref": "bridge_file_list"
+          },
+          {
+            "kind": "mcp-tool",
+            "ref": "bridge_file_get"
+          },
+          {
+            "kind": "mcp-tool",
+            "ref": "bridge_chat_list"
+          },
+          {
+            "kind": "mcp-tool",
+            "ref": "bridge_chat_pinned"
+          },
+          {
+            "kind": "mcp-tool",
+            "ref": "room_library_add"
+          },
+          {
+            "kind": "mcp-tool",
+            "ref": "room_library_list"
+          },
+          {
+            "kind": "mcp-tool",
+            "ref": "room_library_retire"
+          },
+          {
+            "kind": "relay-route",
+            "ref": "GET /w/{workspace}/events"
+          },
+          {
+            "kind": "relay-route",
+            "ref": "GET /w/{workspace}/keys"
+          },
+          {
+            "kind": "relay-route",
+            "ref": "POST /w/{workspace}/{party}/events"
+          },
+          {
+            "kind": "relay-route",
+            "ref": "PUT /w/{workspace}/blobs/{sha256}"
+          },
+          {
+            "kind": "relay-route",
+            "ref": "GET /w/{workspace}/blobs/{sha256}"
+          },
+          {
+            "kind": "cli-command",
+            "ref": "bridge init"
+          },
+          {
+            "kind": "cli-command",
+            "ref": "bridge join"
+          },
+          {
+            "kind": "cli-command",
+            "ref": "bridge confirm-peer"
+          },
+          {
+            "kind": "cli-command",
+            "ref": "bridge agent-card"
+          },
+          {
+            "kind": "cli-command",
+            "ref": "bridge propose"
+          },
+          {
+            "kind": "cli-command",
+            "ref": "bridge escalate"
+          },
+          {
+            "kind": "cli-command",
+            "ref": "bridge verify"
+          },
+          {
+            "kind": "cli-command",
+            "ref": "bridge listing"
+          }
+        ]
+      }
+    }
+  }
+}

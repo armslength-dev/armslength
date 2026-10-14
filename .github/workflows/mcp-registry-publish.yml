@@ -1,0 +1,160 @@
+# Lists armslength in the Official MCP Registry (registry.modelcontextprotocol.io)
+# as io.github.armslength-dev/armslength, from server.json in this repository.
+#
+# Manual only. There is deliberately no pull_request, pull_request_target or push
+# trigger: only people with write access to this repository can start it, and a
+# fork can never mint the OIDC token that proves the io.github.armslength-dev
+# namespace.
+#
+#   publish = false (default): every check below plus the OIDC login, and nothing
+#                              is published. Use this as the dry run.
+#   publish = true:            the same, then `mcp-publisher publish` and a
+#                              read-back from the registry. Only from main.
+#
+# Runner: GitHub-hosted. This is a public repository in another org, and a
+# self-hosted runner must never serve a public repository. This is a documented
+# exception to the fleet's self-hosted-only CI rule and needs lead-builder /
+# Build Council OK on the PR that adds it.
+name: mcp-registry-publish
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Version being listed, e.g. 0.28.13. Must equal server.json's version.
+        required: true
+        type: string
+      publish:
+        description: Publish to the registry (false = checks and login only).
+        required: true
+        type: boolean
+        default: false
+
+permissions: {}
+
+concurrency:
+  group: mcp-registry-publish
+  cancel-in-progress: false
+
+jobs:
+  registry:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      id-token: write
+      contents: read
+    env:
+      # Pinned publisher: modelcontextprotocol/registry release v1.8.1 (2026-08-06),
+      # asset mcp-publisher_linux_amd64.tar.gz. The sha256 is the release's own
+      # asset digest and its line in registry_1.8.1_checksums.txt.
+      PUBLISHER_VERSION: v1.8.1
+      PUBLISHER_SHA256: a06c9096dcb9727c13555b6be26c7effa707b01f06a4c561ba7a3635443cf2cc
+      EXPECTED_NAME: io.github.armslength-dev/armslength
+      EXPECTED_REMOTE: https://ouragentsync.com/mcp
+      EXPECTED_SCHEMA: https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json
+      REGISTRY: https://registry.modelcontextprotocol.io
+    steps:
+      - name: Check out server.json
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Pre-login checks (fail closed)
+        env:
+          INPUT_VERSION: ${{ inputs.version }}
+          INPUT_PUBLISH: ${{ inputs.publish }}
+          GIT_REF: ${{ github.ref }}
+        run: |
+          python3 - <<'PY'
+          import json, os, re, sys
+
+          def fail(msg):
+              print(f"::error::{msg}")
+              sys.exit(1)
+
+          version = os.environ["INPUT_VERSION"]
+          publish = os.environ["INPUT_PUBLISH"]
+          if not re.fullmatch(r"\d+\.\d+\.\d+", version):
+              fail(f"version input {version!r} is not MAJOR.MINOR.PATCH")
+          if publish not in ("true", "false"):
+              fail(f"publish input {publish!r} is not a boolean")
+          if publish == "true" and os.environ["GIT_REF"] != "refs/heads/main":
+              fail(f"publish=true runs only from main, not {os.environ['GIT_REF']}")
+
+          try:
+              with open("server.json", "rb") as f:
+                  doc = json.loads(f.read().decode("utf-8"))
+          except Exception as e:
+              fail(f"server.json is not valid JSON: {e}")
+          if not isinstance(doc, dict):
+              fail("server.json is not a JSON object")
+
+          if doc.get("$schema") != os.environ["EXPECTED_SCHEMA"]:
+              fail(f"$schema is {doc.get('$schema')!r}, expected {os.environ['EXPECTED_SCHEMA']}")
+          if doc.get("name") != os.environ["EXPECTED_NAME"]:
+              fail(f"name is {doc.get('name')!r}, expected {os.environ['EXPECTED_NAME']}")
+          if doc.get("version") != version:
+              fail(f"server.json version {doc.get('version')!r} != input {version!r}")
+          remotes = doc.get("remotes")
+          if not isinstance(remotes, list) or not remotes or not isinstance(remotes[0], dict):
+              fail("remotes[0] is missing")
+          if remotes[0].get("url") != os.environ["EXPECTED_REMOTE"]:
+              fail(f"remotes[0].url is {remotes[0].get('url')!r}, expected {os.environ['EXPECTED_REMOTE']}")
+          if remotes[0].get("type") != "streamable-http":
+              fail(f"remotes[0].type is {remotes[0].get('type')!r}, expected streamable-http")
+          print(f"ok: {doc['name']} {doc['version']} -> {remotes[0]['url']} (publish={publish})")
+          PY
+
+      - name: Install pinned mcp-publisher (sha256 verified before it runs)
+        run: |
+          set -euo pipefail
+          dir="$RUNNER_TEMP/mcp-publisher"
+          mkdir -p "$dir"
+          curl -fsSL --proto '=https' --tlsv1.2 -o "$dir/publisher.tar.gz" \
+            "https://github.com/modelcontextprotocol/registry/releases/download/${PUBLISHER_VERSION}/mcp-publisher_linux_amd64.tar.gz"
+          echo "${PUBLISHER_SHA256}  $dir/publisher.tar.gz" | sha256sum -c -
+          tar -xzf "$dir/publisher.tar.gz" -C "$dir" mcp-publisher
+          echo "$dir" >> "$GITHUB_PATH"
+
+      - name: Schema and registry-rule validation (before login)
+        # Validates server.json against its $schema and the registry's own
+        # rules on the registry's validate endpoint. No login, nothing written.
+        run: mcp-publisher validate server.json
+
+      - name: Log in with GitHub Actions OIDC
+        run: mcp-publisher login github-oidc
+
+      - name: Publish
+        if: ${{ inputs.publish == true }}
+        run: mcp-publisher publish server.json
+
+      - name: Read back the listing
+        if: ${{ inputs.publish == true }}
+        env:
+          INPUT_VERSION: ${{ inputs.version }}
+        run: |
+          python3 - <<'PY'
+          import json, os, sys, time, urllib.parse, urllib.request
+
+          name, version = os.environ["EXPECTED_NAME"], os.environ["INPUT_VERSION"]
+          url = f"{os.environ['REGISTRY']}/v0/servers?" + urllib.parse.urlencode({"search": name})
+          for attempt in range(6):
+              with urllib.request.urlopen(url, timeout=20) as r:
+                  body = json.load(r)
+              for item in body.get("servers") or []:
+                  server = item.get("server", item)
+                  remotes = server.get("remotes") or [{}]
+                  if server.get("name") == name and server.get("version") == version:
+                      if remotes[0].get("url") != os.environ["EXPECTED_REMOTE"]:
+                          print(f"::error::listed with remote {remotes[0].get('url')!r}")
+                          sys.exit(1)
+                      print(f"listed: {name} {version} -> {remotes[0]['url']}")
+                      sys.exit(0)
+              time.sleep(10)
+          print(f"::error::{name} {version} not found at {url}")
+          sys.exit(1)
+          PY
+
+      - name: Log out
+        if: ${{ always() }}
+        run: command -v mcp-publisher >/dev/null && mcp-publisher logout || true
