@@ -5,7 +5,7 @@
   },
   "plugins": [
     {
-      "description": "Two companies' AI agents agree a contract. Neither side gets access to the other's systems.",
+      "description": "Your AI and another company's AI on one signed line. People approve; nobody shares logins.",
       "keywords": [
         "mcp-tool:bridge_contract_list",
         "mcp-tool:bridge_contract_get",
@@ -21,6 +21,9 @@
         "mcp-tool:bridge_file_get",
         "mcp-tool:bridge_chat_list",
         "mcp-tool:bridge_chat_pinned",
+        "mcp-tool:room_library_add",
+        "mcp-tool:room_library_list",
+        "mcp-tool:room_library_retire",
         "relay-route:GET /w/{workspace}/events",
         "relay-route:GET /w/{workspace}/keys",
         "relay-route:POST /w/{workspace}/{party}/events",
@@ -42,8 +45,8 @@
           ],
           "command": "bridge",
           "env": {
-            "BRIDGE_LISTING_CAPABILITIES": "[{\"kind\":\"mcp-tool\",\"ref\":\"bridge_contract_list\"},{\"kind\":\"mcp-tool\",\"ref\":\"bridge_contract_get\"},{\"kind\":\"mcp-tool\",\"ref\":\"bridge_proposal_list\"},{\"kind\":\"mcp-tool\",\"ref\":\"bridge_proposal_show\"},{\"kind\":\"mcp-tool\",\"ref\":\"bridge_status_get\"},{\"kind\":\"mcp-tool\",\"ref\":\"bridge_propose\"},{\"kind\":\"mcp-tool\",\"ref\":\"bridge_proposal_counter\"},{\"kind\":\"mcp-tool\",\"ref\":\"bridge_proposal_comment\"},{\"kind\":\"mcp-tool\",\"ref\":\"bridge_proposal_accept\"},{\"kind\":\"mcp-tool\",\"ref\":\"bridge_proposal_reject\"},{\"kind\":\"mcp-tool\",\"ref\":\"bridge_file_list\"},{\"kind\":\"mcp-tool\",\"ref\":\"bridge_file_get\"},{\"kind\":\"mcp-tool\",\"ref\":\"bridge_chat_list\"},{\"kind\":\"mcp-tool\",\"ref\":\"bridge_chat_pinned\"},{\"kind\":\"relay-route\",\"ref\":\"GET /w/{workspace}/events\"},{\"kind\":\"relay-route\",\"ref\":\"GET /w/{workspace}/keys\"},{\"kind\":\"relay-route\",\"ref\":\"POST /w/{workspace}/{party}/events\"},{\"kind\":\"relay-route\",\"ref\":\"PUT /w/{workspace}/blobs/{sha256}\"},{\"kind\":\"relay-route\",\"ref\":\"GET /w/{workspace}/blobs/{sha256}\"},{\"kind\":\"cli-command\",\"ref\":\"bridge init\"},{\"kind\":\"cli-command\",\"ref\":\"bridge join\"},{\"kind\":\"cli-command\",\"ref\":\"bridge confirm-peer\"},{\"kind\":\"cli-command\",\"ref\":\"bridge agent-card\"},{\"kind\":\"cli-command\",\"ref\":\"bridge propose\"},{\"kind\":\"cli-command\",\"ref\":\"bridge escalate\"},{\"kind\":\"cli-command\",\"ref\":\"bridge verify\"},{\"kind\":\"cli-command\",\"ref\":\"bridge listing\"}]",
-            "BRIDGE_LISTING_VERSION": "0.26"
+            "BRIDGE_LISTING_CAPABILITIES": "[{\"kind\":\"mcp-tool\",\"ref\":\"bridge_contract_list\"},{\"kind\":\"mcp-tool\",\"ref\":\"bridge_contract_get\"},{\"kind\":\"mcp-tool\",\"ref\":\"bridge_proposal_list\"},{\"kind\":\"mcp-tool\",\"ref\":\"bridge_proposal_show\"},{\"kind\":\"mcp-tool\",\"ref\":\"bridge_status_get\"},{\"kind\":\"mcp-tool\",\"ref\":\"bridge_propose\"},{\"kind\":\"mcp-tool\",\"ref\":\"bridge_proposal_counter\"},{\"kind\":\"mcp-tool\",\"ref\":\"bridge_proposal_comment\"},{\"kind\":\"mcp-tool\",\"ref\":\"bridge_proposal_accept\"},{\"kind\":\"mcp-tool\",\"ref\":\"bridge_proposal_reject\"},{\"kind\":\"mcp-tool\",\"ref\":\"bridge_file_list\"},{\"kind\":\"mcp-tool\",\"ref\":\"bridge_file_get\"},{\"kind\":\"mcp-tool\",\"ref\":\"bridge_chat_list\"},{\"kind\":\"mcp-tool\",\"ref\":\"bridge_chat_pinned\"},{\"kind\":\"mcp-tool\",\"ref\":\"room_library_add\"},{\"kind\":\"mcp-tool\",\"ref\":\"room_library_list\"},{\"kind\":\"mcp-tool\",\"ref\":\"room_library_retire\"},{\"kind\":\"relay-route\",\"ref\":\"GET /w/{workspace}/events\"},{\"kind\":\"relay-route\",\"ref\":\"GET /w/{workspace}/keys\"},{\"kind\":\"relay-route\",\"ref\":\"POST /w/{workspace}/{party}/events\"},{\"kind\":\"relay-route\",\"ref\":\"PUT /w/{workspace}/blobs/{sha256}\"},{\"kind\":\"relay-route\",\"ref\":\"GET /w/{workspace}/blobs/{sha256}\"},{\"kind\":\"cli-command\",\"ref\":\"bridge init\"},{\"kind\":\"cli-command\",\"ref\":\"bridge join\"},{\"kind\":\"cli-command\",\"ref\":\"bridge confirm-peer\"},{\"kind\":\"cli-command\",\"ref\":\"bridge agent-card\"},{\"kind\":\"cli-command\",\"ref\":\"bridge propose\"},{\"kind\":\"cli-command\",\"ref\":\"bridge escalate\"},{\"kind\":\"cli-command\",\"ref\":\"bridge verify\"},{\"kind\":\"cli-command\",\"ref\":\"bridge listing\"}]",
+            "BRIDGE_LISTING_VERSION": "0.28.24"
           },
           "type": "stdio"
         }
@@ -51,7 +54,7 @@
       "name": "agent-bridge",
       "source": "./",
       "strict": false,
-      "version": "0.26"
+      "version": "0.28.24"
     }
   ]
 }

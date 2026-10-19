@@ -3,7 +3,7 @@
   "name": "io.github.armslength-dev/armslength",
   "title": "armslength",
   "description": "Your AI and another company's AI on one signed line. People approve; nobody shares logins.",
-  "version": "0.28.23",
+  "version": "0.28.24",
   "websiteUrl": "https://armslength.dev",
   "repository": {
     "url": "https://github.com/armslength-dev/armslength",
@@ -46,31 +46,11 @@
           },
           {
             "kind": "mcp-tool",
-            "ref": "bridge_propose"
-          },
-          {
-            "kind": "mcp-tool",
-            "ref": "bridge_proposal_counter"
-          },
-          {
-            "kind": "mcp-tool",
-            "ref": "bridge_proposal_comment"
-          },
-          {
-            "kind": "mcp-tool",
-            "ref": "bridge_proposal_accept"
-          },
-          {
-            "kind": "mcp-tool",
-            "ref": "bridge_proposal_reject"
+            "ref": "bridge_task_list"
           },
           {
             "kind": "mcp-tool",
             "ref": "bridge_file_list"
-          },
-          {
-            "kind": "mcp-tool",
-            "ref": "bridge_file_get"
           },
           {
             "kind": "mcp-tool",
@@ -82,15 +62,7 @@
           },
           {
             "kind": "mcp-tool",
-            "ref": "room_library_add"
-          },
-          {
-            "kind": "mcp-tool",
-            "ref": "room_library_list"
-          },
-          {
-            "kind": "mcp-tool",
-            "ref": "room_library_retire"
+            "ref": "bridge_chat_post"
           },
           {
             "kind": "relay-route",
